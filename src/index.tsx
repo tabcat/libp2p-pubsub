@@ -9,23 +9,15 @@ import { createLibp2p, type Libp2p } from 'libp2p'
 import { gossipsub } from '@chainsafe/libp2p-gossipsub'
 import { noise } from '@chainsafe/libp2p-noise'
 import { yamux } from '@chainsafe/libp2p-yamux'
-import { bootstrap } from '@libp2p/bootstrap'
 import { type DualKadDHT, kadDHT } from '@libp2p/kad-dht'
-import { mplex } from '@libp2p/mplex'
-import { webRTC, webRTCDirect } from '@libp2p/webrtc'
-import { webSockets } from '@libp2p/websockets'
-import { webTransport } from '@libp2p/webtransport'
 import { ipnsSelector } from 'ipns/selector'
 import { ipnsValidator } from 'ipns/validator'
-import { autoNATService } from 'libp2p/autonat'
-import { circuitRelayTransport } from 'libp2p/circuit-relay'
 import { identifyService } from 'libp2p/identify'
 import type { PubSub } from '@libp2p/interface-pubsub'
 import type { Libp2pOptions } from 'libp2p'
 import { multiaddr } from '@multiformats/multiaddr'
-import { all } from '@libp2p/websockets/filters'
-import { peerId } from './relay-peerid.js'
 import type { ConnectionGater } from '@libp2p/interface-connection-gater'
+import { webRTCStar } from '@libp2p/webrtc-star'
 
 declare global {
   interface Window {
@@ -53,44 +45,37 @@ const connectionGater = (): ConnectionGater => {
 }
 
 export function libp2pDefaults (): Libp2pOptions<{ dht: DualKadDHT, pubsub: PubSub, identify: unknown, autoNAT: unknown }> {
+  const webRtcStar = webRTCStar()
   return {
     addresses: {
       listen: [
-        '/webrtc'
+        '/dns4/wrtc-star1.par.dwebops.pub/tcp/443/wss/p2p-webrtc-star/'
       ]
     },
-    transports: [
-      webRTC(),
-      webRTCDirect(),
-      webTransport(),
-      webSockets({ filter: all }),
-      circuitRelayTransport({
-        discoverRelays: 1
-      })
-    ],
     connectionGater: connectionGater(),
+    transports: [
+      webRtcStar.transport
+    ],
+    peerDiscovery: [
+      webRtcStar.discovery
+    ],
     connectionEncryption: [
       noise()
     ],
-    peerDiscovery: [
-      bootstrap({ list: [`/ip4/127.0.0.1/tcp/8001/ws/p2p/${peerId.toString()}`] })
-    ],
     streamMuxers: [
-      yamux(),
-      mplex()
+      yamux()
     ],
+    connectionManager: {
+      maxParallelDials: 150, // 150 total parallel multiaddr dials
+      dialTimeout: 10e3 // 10 second dial timeout per peer dial
+    },
     services: {
       identify: identifyService(),
-      autoNAT: autoNATService(),
-      pubsub: gossipsub(),
+      pubsub: gossipsub({ emitSelf: true }),
       dht: kadDHT({
-        clientMode: true,
-        validators: {
-          ipns: ipnsValidator
-        },
-        selectors: {
-          ipns: ipnsSelector
-        }
+        clientMode: false,
+        validators: { ipns: ipnsValidator },
+        selectors: { ipns: ipnsSelector }
       })
     }
   }
