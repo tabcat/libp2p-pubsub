@@ -2,6 +2,8 @@
 
 > testing out libp2p pubsub in the browser
 
+https://github.com/libp2p/js-libp2p/issues/1865
+
 ## Structure
 
 built using create-react-app
