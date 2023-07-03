@@ -6,11 +6,14 @@
 
 built using create-react-app
 
+libp2p deps are pulled in by helia
+
 edited/added app files:
 
 - relay.js
 - src/index.tsx
 - src/relay-peerid.js
+
 
 ## Topology
 
