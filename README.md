@@ -31,3 +31,8 @@ $ npm run relay
 # shell 2
 $ npm run start
 ```
+
+## Observed vs Expected Behavior
+
+clients do not discover eachother
+unable to add pubsub peers to mesh, even after manually connecting clients using relay multiaddrs
