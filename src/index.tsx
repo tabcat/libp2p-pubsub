@@ -28,7 +28,7 @@ import { peerId } from './relay-peerid.js'
 import type { ConnectionGater } from '@libp2p/interface-connection-gater'
 import { RPC } from '@chainsafe/libp2p-gossipsub/message'
 
-console.log(RPC)
+console.log({ RPC })
 
 declare global {
   interface Window {
