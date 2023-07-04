@@ -26,6 +26,9 @@ import { multiaddr } from '@multiformats/multiaddr'
 import { all } from '@libp2p/websockets/filters'
 import { peerId } from './relay-peerid.js'
 import type { ConnectionGater } from '@libp2p/interface-connection-gater'
+import { RPC } from '@chainsafe/libp2p-gossipsub/message'
+
+console.log(RPC)
 
 declare global {
   interface Window {
